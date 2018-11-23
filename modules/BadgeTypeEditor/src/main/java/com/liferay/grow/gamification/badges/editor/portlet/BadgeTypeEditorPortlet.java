@@ -44,6 +44,7 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.instanceable=false",
 		"javax.portlet.init-param.template-path=/",
 		"javax.portlet.init-param.view-template=/view.jsp",
+		"com.liferay.portlet.display-category=category.hidden",
 		"com.liferay.portlet.header-portlet-css=/css/style.css",
 		"com.liferay.portlet.footer-portlet-javascript=/js/main.js",
 		"com.liferay.portlet.footer-portlet-javascript=/js/jquery.form-validator.min.js",
