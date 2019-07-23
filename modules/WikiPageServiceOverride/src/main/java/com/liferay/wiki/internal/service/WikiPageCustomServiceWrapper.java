@@ -24,11 +24,13 @@ import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.mentions.configuration.MentionsGroupServiceConfiguration;
 import com.liferay.mentions.util.MentionsNotifier;
 import com.liferay.mentions.util.MentionsUtil;
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceWrapper;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.wiki.engine.WikiEngineRenderer;
@@ -62,6 +64,8 @@ public class WikiPageCustomServiceWrapper extends WikiPageLocalServiceWrapper {
 			ServiceContext serviceContext)
 		throws PortalException {
 
+		title = _normalizeTitle(title);
+
 		WikiPage page = super.addPage(
 			userId, nodeId, title, version, content, summary, minorEdit, format,
 			head, parentTitle, redirectTitle, serviceContext);
@@ -78,6 +82,8 @@ public class WikiPageCustomServiceWrapper extends WikiPageLocalServiceWrapper {
 			long userId, long nodeId, String title, String content,
 			String summary, boolean minorEdit, ServiceContext serviceContext)
 		throws PortalException {
+
+		title = _normalizeTitle(title);
 
 		WikiPage page = super.addPage(
 			userId, nodeId, title, content, summary, minorEdit, serviceContext);
@@ -161,6 +167,13 @@ public class WikiPageCustomServiceWrapper extends WikiPageLocalServiceWrapper {
 		WikiEngineRenderer wikiEngineRenderer) {
 
 		_wikiEngineRenderer = wikiEngineRenderer;
+	}
+
+	private String _normalizeTitle(String title) {
+		title = StringUtil.replace(
+			title, CharPool.NO_BREAK_SPACE, CharPool.SPACE);
+
+		return StringUtil.trim(title);
 	}
 
 
