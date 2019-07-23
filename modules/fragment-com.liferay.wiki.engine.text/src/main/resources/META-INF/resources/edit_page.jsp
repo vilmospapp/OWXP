@@ -60,7 +60,7 @@ else {
 <script>
 	var el = document.querySelector('textarea');
 	var stackedit = new Stackedit({
-		url: 'https://stackedit.lfr.io/app'
+		url: 'https://stackedit-liferaygrow-infra.lfr.cloud/app'
 	});
 
 	var a = document.getElementById("stackEdit");
