@@ -16,7 +16,14 @@
 
 <%@ include file="/init.jsp" %>
 
+<%@ page import="com.liferay.portal.kernel.model.UserNotificationDeliveryConstants" %><%@
+page import="com.liferay.portal.kernel.portlet.PortalPreferences" %><%@
+page import="com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil" %><%@
+page import="com.liferay.portal.kernel.service.UserNotificationEventLocalServiceUtil" %>
+
 <%
+_resetUserNoticationEventsCount(themeDisplay.getUserId());
+
 String navigation = ParamUtil.getString(request, "navigation", "all");
 
 boolean actionRequired = ParamUtil.getBoolean(request, "actionRequired");
@@ -226,3 +233,14 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 		return notice;
 	}
 </aui:script>
+
+<%!
+private void _resetUserNoticationEventsCount(long userId) {
+	PortalPreferences portalPreferences =
+		PortletPreferencesFactoryUtil.getPortalPreferences(userId, true);
+
+	portalPreferences.setValue(UserNotificationEvent.class.getName(), "useLegacyUserNotificationEventsCount", "false");
+
+	portalPreferences.setValue(UserNotificationEvent.class.getName(), "userNotificationEventsCount", "0");
+}
+%>
