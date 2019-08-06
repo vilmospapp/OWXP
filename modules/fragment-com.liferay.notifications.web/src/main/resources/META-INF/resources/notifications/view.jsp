@@ -2,30 +2,21 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * The contents of this file are subject to the terms of the Liferay Enterprise
- * Subscription License ("License"). You may not use this file except in
- * compliance with the License. You can obtain a copy of the License by
- * contacting Liferay, Inc. See the License for the specific language governing
- * permissions and limitations under the License, including but not limited to
- * distribution rights of the Software.
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
  *
- *
- *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
  */
 --%>
 
 <%@ include file="/init.jsp" %>
 
-<%@ page import="com.liferay.portal.kernel.model.UserNotificationDeliveryConstants" %><%@
-page import="com.liferay.portal.kernel.portlet.PortalPreferences" %><%@
-page import="com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil" %><%@
-page import="com.liferay.portal.kernel.service.UserNotificationEventLocalServiceUtil" %>
-
 <%
-_resetUserNoticationEventsCount(themeDisplay.getUserId());
-
-int archivedUserNotificationEventsCount = UserNotificationEventLocalServiceUtil.getArchivedUserNotificationEventsCount(themeDisplay.getUserId(), UserNotificationDeliveryConstants.TYPE_WEBSITE, false, false);
-
 String navigation = ParamUtil.getString(request, "navigation", "all");
 
 boolean actionRequired = ParamUtil.getBoolean(request, "actionRequired");
@@ -128,32 +119,32 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 </div>
 
 <aui:script sandbox="<%= true %>">
-	var deleteAllNotifications = function() {
-		var form = AUI.$(document.<portlet:namespace />fm);
+	var deleteNotifications = function() {
+		var form = document.getElementById('<portlet:namespace />fm');
 
-		form.attr('method', 'post');
+		form.setAttribute('method', 'post');
 
-		submitForm(form, '<portlet:actionURL name="deleteAllNotifications"><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:actionURL>');
+		submitForm(form, '<portlet:actionURL name="deleteNotifications"><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:actionURL>');
 	};
 
 	var markNotificationsAsRead = function() {
-		var form = AUI.$(document.<portlet:namespace />fm);
+		var form = document.getElementById('<portlet:namespace />fm');
 
-		form.attr('method', 'post');
+		form.setAttribute('method', 'post');
 
 		submitForm(form, '<portlet:actionURL name="markNotificationsAsRead"><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:actionURL>');
 	};
 
 	var markNotificationsAsUnread = function() {
-		var form = AUI.$(document.<portlet:namespace />fm);
+		var form = document.getElementById('<portlet:namespace />fm');
 
-		form.attr('method', 'post');
+		form.setAttribute('method', 'post');
 
 		submitForm(form, '<portlet:actionURL name="markNotificationsAsUnread"><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:actionURL>');
 	};
 
 	var ACTIONS = {
-		'deleteAllNotifications': deleteAllNotifications,
+		'deleteNotifications': deleteNotifications,
 		'markNotificationsAsRead': markNotificationsAsRead,
 		'markNotificationsAsUnread': markNotificationsAsUnread
 	};
@@ -223,7 +214,7 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 			notice = new Liferay.Notice(
 				{
 					closeText: false,
-					content: '<liferay-ui:message key="an-unexpected-error-occurred" /><button class="close" type="button">&times;</button>',
+					content: '<liferay-ui:message key="an-unexpected-error-occurred" /><button aria-label="' + Liferay.Language.get("close") + '" class="close" type="button">&times;</button>',
 					timeout: 5000,
 					toggleText: false,
 					type: 'warning',
@@ -235,14 +226,3 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 		return notice;
 	}
 </aui:script>
-
-<%!
-private void _resetUserNoticationEventsCount(long userId) {
-	PortalPreferences portalPreferences =
-		PortletPreferencesFactoryUtil.getPortalPreferences(userId, true);
-
-	portalPreferences.setValue(UserNotificationEvent.class.getName(), "useLegacyUserNotificationEventsCount", "false");
-
-	portalPreferences.setValue(UserNotificationEvent.class.getName(), "userNotificationEventsCount", "0");
-}
-%>
