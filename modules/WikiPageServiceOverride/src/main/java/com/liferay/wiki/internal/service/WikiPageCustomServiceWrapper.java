@@ -14,12 +14,6 @@
 
 package com.liferay.wiki.internal.service;
 
-import java.io.Serializable;
-import java.util.Map;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.mentions.configuration.MentionsGroupServiceConfiguration;
 import com.liferay.mentions.util.MentionsNotifier;
@@ -37,6 +31,13 @@ import com.liferay.wiki.engine.WikiEngineRenderer;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.service.WikiPageLocalService;
 import com.liferay.wiki.service.WikiPageLocalServiceWrapper;
+
+import java.io.Serializable;
+
+import java.util.Map;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Istvan Sajtos
@@ -108,7 +109,7 @@ public class WikiPageCustomServiceWrapper extends WikiPageLocalServiceWrapper {
 			userId, page, status, serviceContext, workflowContext);
 
 		if ((status != WorkflowConstants.STATUS_APPROVED) ||
-				(oldStatus == WorkflowConstants.STATUS_IN_TRASH)) {
+			(oldStatus == WorkflowConstants.STATUS_IN_TRASH)) {
 
 			return page;
 		}
@@ -156,17 +157,17 @@ public class WikiPageCustomServiceWrapper extends WikiPageLocalServiceWrapper {
 	}
 
 	@Reference(unbind = "-")
-	protected void setWikiPageLocalService(
-		WikiPageLocalService wikiPageLocalService) {
-
-		_wikiPageLocalService = wikiPageLocalService;
-	}
-
-	@Reference(unbind = "-")
 	protected void setWikiEngineRenderer(
 		WikiEngineRenderer wikiEngineRenderer) {
 
 		_wikiEngineRenderer = wikiEngineRenderer;
+	}
+
+	@Reference(unbind = "-")
+	protected void setWikiPageLocalService(
+		WikiPageLocalService wikiPageLocalService) {
+
+		_wikiPageLocalService = wikiPageLocalService;
 	}
 
 	private String _normalizeTitle(String title) {
@@ -176,10 +177,9 @@ public class WikiPageCustomServiceWrapper extends WikiPageLocalServiceWrapper {
 		return StringUtil.trim(title);
 	}
 
-
 	private ConfigurationProvider _configurationProvider;
 	private MentionsNotifier _mentionsNotifier;
-	private WikiPageLocalService _wikiPageLocalService;
 	private WikiEngineRenderer _wikiEngineRenderer;
-	
+	private WikiPageLocalService _wikiPageLocalService;
+
 }
