@@ -19,11 +19,18 @@ import com.liferay.mentions.configuration.MentionsGroupServiceConfiguration;
 import com.liferay.mentions.util.MentionsNotifier;
 import com.liferay.mentions.util.MentionsUtil;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.portlet.PortalPreferences;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.service.PortalPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceWrapper;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -74,6 +81,8 @@ public class WikiPageCustomServiceWrapper extends WikiPageLocalServiceWrapper {
 		if (!ExportImportThreadLocal.isImportInProcess()) {
 			super.subscribePage(userId, nodeId, title);
 		}
+
+		_storeUserPreferredFormat(userId, format);
 
 		return page;
 	}
@@ -176,6 +185,35 @@ public class WikiPageCustomServiceWrapper extends WikiPageLocalServiceWrapper {
 
 		return StringUtil.trim(title);
 	}
+
+	private void _storeUserPreferredFormat(long userId, String format) {
+		try {
+			PortalPreferences portalPreferences =
+				PortletPreferencesFactoryUtil.getPortalPreferences(
+					userId, true);
+
+			String oldFormat = portalPreferences.getValue(
+				WikiPage.class.getName(), "format", StringPool.BLANK);
+
+			if (oldFormat.equals(format)) {
+				return;
+			}
+
+			portalPreferences.setValue(
+				WikiPage.class.getName(), "format", format);
+
+			PortalPreferencesLocalServiceUtil.updatePreferences(
+				userId, PortletKeys.PREFS_OWNER_TYPE_USER,
+				PortletPreferencesFactoryUtil.toXML(portalPreferences));
+		}
+		catch (Exception e) {
+			_log.error(
+				"Cannot store preferred wiki format for userId: " + userId);
+		}
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		WikiPageCustomServiceWrapper.class);
 
 	private ConfigurationProvider _configurationProvider;
 	private MentionsNotifier _mentionsNotifier;
