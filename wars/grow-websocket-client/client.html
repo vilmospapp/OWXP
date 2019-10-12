@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style type="text/css">
+			body {
+					width: 100%;
+					height: 100%;
+					background-color: #202020;
+			}
+
+			#info {
+					height:100%;
+					width:100%;
+					display: block;
+					color: white;
+			}
+		</style>
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+		
+	</head>
+<body>
+	<div id="info">
+		
+	</div>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		//let socket = new WebSocket("wss://aiun.serveo.net");
+		let socket = new WebSocket("ws://localhost:8080/o/gamification");
+		socket.onopen = function(e) {
+			console.log("Client started");
+		};
+
+		socket.onmessage = function(event) {
+			try {
+				
+				var message = JSON.parse(event.data);
+				console.log("Message:" + message);
+				var url = "";
+				if (message.messageType == 1) { // Badge
+					url = "badge.html?" + $.param( message );
+					console.log("URL" + url);
+				}
+				if (url != "") {
+					//$("#info").load(url);
+					location.replace(url);
+				}
+			}
+			catch (e){
+				console.log(e);
+			}
+			finally {
+
+			}
+		};
+
+		socket.onclose = function(event) {
+		if (event.wasClean) {
+			$("#info").html("Connection closed cleanly, code="+event.code+" reason="+event.reason);
+		} else {
+			// e.g. server process killed or network down
+			// event.code is usually 1006 in this case
+			$("#info").html("Connection died");
+		}
+		};
+
+		socket.onerror = function(error) {
+			$("#info").html(error.message);
+		};
+	});
+	</script>
+</body>
+</html>
