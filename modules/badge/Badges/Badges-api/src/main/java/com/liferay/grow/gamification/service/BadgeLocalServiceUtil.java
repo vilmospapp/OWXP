@@ -318,6 +318,15 @@ public class BadgeLocalServiceUtil {
 		return getService().getPersistedModel(primaryKeyObj);
 	}
 
+	public static java.util.List<com.liferay.grow.gamification.model.Badge> getUndeliveredBadges() {
+		return getService().getUndeliveredBadges();
+	}
+
+	public static void notifySubscribers(
+		com.liferay.grow.gamification.model.Badge badge) {
+		getService().notifySubscribers(badge);
+	}
+
 	/**
 	* Updates the badge in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*

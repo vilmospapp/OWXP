@@ -26,6 +26,9 @@ import com.liferay.grow.gamification.model.Message;
 import com.liferay.grow.gamification.service.base.BadgeLocalServiceBaseImpl;
 import com.liferay.mail.kernel.model.MailMessage;
 import com.liferay.mail.kernel.service.MailServiceUtil;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -47,15 +50,13 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import javax.mail.internet.InternetAddress;
-
 import javax.websocket.ClientEndpoint;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
@@ -88,7 +89,7 @@ public class BadgeLocalServiceImpl extends BadgeLocalServiceBaseImpl {
 		badge = super.addBadge(badge);
 
 		if (notify) {
-			_notifySubscribers(badge);
+			notifySubscribers(badge);
 		}
 
 		return badge;
@@ -105,6 +106,14 @@ public class BadgeLocalServiceImpl extends BadgeLocalServiceBaseImpl {
 
 	public List<Badge> getBadgesOfUser(long userId, int start, int end) {
 		return badgePersistence.findBytoUserId(userId, start, end);
+	}
+
+	public List<Badge> getUndeliveredBadges() {
+		ClassLoader classLoader = getClass().getClassLoader();
+
+        DynamicQuery badgeQuery = DynamicQueryFactoryUtil.forClass(Badge.class, classLoader)
+            .add(RestrictionsFactoryUtil.eq("delivered", false));
+		return badgePersistence.findWithDynamicQuery(badgeQuery);
 	}
 
 	private String _getImageLink(Badge badge) throws PortalException {
@@ -151,7 +160,7 @@ public class BadgeLocalServiceImpl extends BadgeLocalServiceBaseImpl {
 		return mailMessage;
 	}
 
-	private void _notifySubscribers(Badge badge) {
+	public void notifySubscribers(Badge badge) {
 		URI endpointURI = null;
 
 		try {

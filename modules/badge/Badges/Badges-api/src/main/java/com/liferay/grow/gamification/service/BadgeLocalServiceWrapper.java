@@ -328,6 +328,17 @@ public class BadgeLocalServiceWrapper implements BadgeLocalService,
 		return _badgeLocalService.getPersistedModel(primaryKeyObj);
 	}
 
+	@Override
+	public java.util.List<com.liferay.grow.gamification.model.Badge> getUndeliveredBadges() {
+		return _badgeLocalService.getUndeliveredBadges();
+	}
+
+	@Override
+	public void notifySubscribers(
+		com.liferay.grow.gamification.model.Badge badge) {
+		_badgeLocalService.notifySubscribers(badge);
+	}
+
 	/**
 	* Updates the badge in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
