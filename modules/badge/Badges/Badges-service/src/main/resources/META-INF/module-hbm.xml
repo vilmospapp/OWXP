@@ -19,6 +19,8 @@
 		<property name="badgeTypeId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property name="toUserId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property name="description" type="com.liferay.portal.dao.orm.hibernate.StringType" />
+		<property name="delivered" type="com.liferay.portal.dao.orm.hibernate.BooleanType" />
+		<property name="deliveredAfter" type="org.hibernate.type.TimestampType" />
 		<property name="assignedDateId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 	</class>
 	<class name="com.liferay.grow.gamification.model.impl.BadgeTypeImpl" table="gamification_BadgeType">
@@ -36,6 +38,7 @@
 		<property name="assignableTo" type="org.hibernate.type.TimestampType" />
 		<property name="fileEntryId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property name="system" type="com.liferay.portal.dao.orm.hibernate.BooleanType" />
+		<property name="templateHTML" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 	</class>
 	<class name="com.liferay.grow.gamification.model.impl.LDateImpl" table="gamification_LDate">
 		<id name="dateId" type="long">

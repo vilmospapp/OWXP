@@ -44,6 +44,8 @@ public class BadgeSoap implements Serializable {
 		soapModel.setBadgeTypeId(model.getBadgeTypeId());
 		soapModel.setToUserId(model.getToUserId());
 		soapModel.setDescription(model.getDescription());
+		soapModel.setDelivered(model.isDelivered());
+		soapModel.setDeliveredAfter(model.getDeliveredAfter());
 		soapModel.setAssignedDateId(model.getAssignedDateId());
 
 		return soapModel;
@@ -177,6 +179,26 @@ public class BadgeSoap implements Serializable {
 		_description = description;
 	}
 
+	public boolean getDelivered() {
+		return _delivered;
+	}
+
+	public boolean isDelivered() {
+		return _delivered;
+	}
+
+	public void setDelivered(boolean delivered) {
+		_delivered = delivered;
+	}
+
+	public Date getDeliveredAfter() {
+		return _deliveredAfter;
+	}
+
+	public void setDeliveredAfter(Date deliveredAfter) {
+		_deliveredAfter = deliveredAfter;
+	}
+
 	public long getAssignedDateId() {
 		return _assignedDateId;
 	}
@@ -195,5 +217,7 @@ public class BadgeSoap implements Serializable {
 	private long _badgeTypeId;
 	private long _toUserId;
 	private String _description;
+	private boolean _delivered;
+	private Date _deliveredAfter;
 	private long _assignedDateId;
 }

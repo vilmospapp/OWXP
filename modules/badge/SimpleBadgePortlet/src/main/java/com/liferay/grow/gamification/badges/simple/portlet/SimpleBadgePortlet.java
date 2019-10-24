@@ -12,17 +12,18 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import javax.portlet.ActionRequest;
@@ -67,6 +68,7 @@ public class SimpleBadgePortlet extends MVCPortlet {
 			actionRequest.getParameter("badgeTypeId"));
 		long badgeId = _counterLocalService.increment(Badge.class.getName());
 		String description = actionRequest.getParameter("description");
+		String deliveredAfter = actionRequest.getParameter("deliveredAfter");
 
 		try {
 			User fromUser = (User)actionRequest.getAttribute(WebKeys.USER);
@@ -83,6 +85,10 @@ public class SimpleBadgePortlet extends MVCPortlet {
 			badge.setToUserId(userId);
 			badge.setUserName(fromUser.getFullName());
 			badge.setUuid(UUID.randomUUID().toString());
+			badge.setDelivered(false);
+			if (deliveredAfter != null) {
+				badge.setDeliveredAfter(_parseDate(deliveredAfter));
+			}
 
 			_badgeLocalService.addBadge(badge);
 
@@ -167,6 +173,10 @@ public class SimpleBadgePortlet extends MVCPortlet {
 		return _lDateLocalService.getDateId(
 			cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1,
 			cal.get(Calendar.DAY_OF_MONTH));
+	}
+
+	private Date _parseDate(String date) throws Exception {
+		return DateUtil.parseDate("yyyy-MM-dd", date, Locale.US);
 	}
 
 	private BadgeLocalService _badgeLocalService;

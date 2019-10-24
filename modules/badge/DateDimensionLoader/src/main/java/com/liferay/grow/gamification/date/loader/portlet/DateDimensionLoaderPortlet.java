@@ -121,7 +121,6 @@ public class DateDimensionLoaderPortlet extends MVCPortlet {
 
 					idx++;
 					calendar.add(Calendar.DAY_OF_YEAR, 1);
-					System.out.println(date);
 					_lDateLocalService.addLDate(date);
 				}
 

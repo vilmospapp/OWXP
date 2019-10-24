@@ -79,6 +79,8 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 			{ "badgeTypeId", Types.BIGINT },
 			{ "toUserId", Types.BIGINT },
 			{ "description", Types.VARCHAR },
+			{ "delivered", Types.BOOLEAN },
+			{ "deliveredAfter", Types.TIMESTAMP },
 			{ "assignedDateId", Types.BIGINT }
 		};
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP = new HashMap<String, Integer>();
@@ -94,10 +96,12 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 		TABLE_COLUMNS_MAP.put("badgeTypeId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("toUserId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("description", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("delivered", Types.BOOLEAN);
+		TABLE_COLUMNS_MAP.put("deliveredAfter", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("assignedDateId", Types.BIGINT);
 	}
 
-	public static final String TABLE_SQL_CREATE = "create table gamification_Badge (uuid_ VARCHAR(75) null,badgeId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,badgeTypeId LONG,toUserId LONG,description VARCHAR(255) null,assignedDateId LONG)";
+	public static final String TABLE_SQL_CREATE = "create table gamification_Badge (uuid_ VARCHAR(75) null,badgeId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,badgeTypeId LONG,toUserId LONG,description VARCHAR(255) null,delivered BOOLEAN,deliveredAfter DATE null,assignedDateId LONG)";
 	public static final String TABLE_SQL_DROP = "drop table gamification_Badge";
 	public static final String ORDER_BY_JPQL = " ORDER BY badge.assignedDateId DESC";
 	public static final String ORDER_BY_SQL = " ORDER BY gamification_Badge.assignedDateId DESC";
@@ -144,6 +148,8 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 		model.setBadgeTypeId(soapModel.getBadgeTypeId());
 		model.setToUserId(soapModel.getToUserId());
 		model.setDescription(soapModel.getDescription());
+		model.setDelivered(soapModel.isDelivered());
+		model.setDeliveredAfter(soapModel.getDeliveredAfter());
 		model.setAssignedDateId(soapModel.getAssignedDateId());
 
 		return model;
@@ -219,6 +225,8 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 		attributes.put("badgeTypeId", getBadgeTypeId());
 		attributes.put("toUserId", getToUserId());
 		attributes.put("description", getDescription());
+		attributes.put("delivered", isDelivered());
+		attributes.put("deliveredAfter", getDeliveredAfter());
 		attributes.put("assignedDateId", getAssignedDateId());
 
 		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
@@ -287,6 +295,18 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 
 		if (description != null) {
 			setDescription(description);
+		}
+
+		Boolean delivered = (Boolean)attributes.get("delivered");
+
+		if (delivered != null) {
+			setDelivered(delivered);
+		}
+
+		Date deliveredAfter = (Date)attributes.get("deliveredAfter");
+
+		if (deliveredAfter != null) {
+			setDeliveredAfter(deliveredAfter);
 		}
 
 		Long assignedDateId = (Long)attributes.get("assignedDateId");
@@ -523,6 +543,34 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 
 	@JSON
 	@Override
+	public boolean getDelivered() {
+		return _delivered;
+	}
+
+	@JSON
+	@Override
+	public boolean isDelivered() {
+		return _delivered;
+	}
+
+	@Override
+	public void setDelivered(boolean delivered) {
+		_delivered = delivered;
+	}
+
+	@JSON
+	@Override
+	public Date getDeliveredAfter() {
+		return _deliveredAfter;
+	}
+
+	@Override
+	public void setDeliveredAfter(Date deliveredAfter) {
+		_deliveredAfter = deliveredAfter;
+	}
+
+	@JSON
+	@Override
 	public long getAssignedDateId() {
 		return _assignedDateId;
 	}
@@ -575,6 +623,8 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 		badgeImpl.setBadgeTypeId(getBadgeTypeId());
 		badgeImpl.setToUserId(getToUserId());
 		badgeImpl.setDescription(getDescription());
+		badgeImpl.setDelivered(isDelivered());
+		badgeImpl.setDeliveredAfter(getDeliveredAfter());
 		badgeImpl.setAssignedDateId(getAssignedDateId());
 
 		badgeImpl.resetOriginalValues();
@@ -720,6 +770,17 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 			badgeCacheModel.description = null;
 		}
 
+		badgeCacheModel.delivered = isDelivered();
+
+		Date deliveredAfter = getDeliveredAfter();
+
+		if (deliveredAfter != null) {
+			badgeCacheModel.deliveredAfter = deliveredAfter.getTime();
+		}
+		else {
+			badgeCacheModel.deliveredAfter = Long.MIN_VALUE;
+		}
+
 		badgeCacheModel.assignedDateId = getAssignedDateId();
 
 		return badgeCacheModel;
@@ -727,7 +788,7 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(27);
 
 		sb.append("{uuid=");
 		sb.append(getUuid());
@@ -749,6 +810,10 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 		sb.append(getToUserId());
 		sb.append(", description=");
 		sb.append(getDescription());
+		sb.append(", delivered=");
+		sb.append(isDelivered());
+		sb.append(", deliveredAfter=");
+		sb.append(getDeliveredAfter());
 		sb.append(", assignedDateId=");
 		sb.append(getAssignedDateId());
 		sb.append("}");
@@ -758,7 +823,7 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(37);
+		StringBundler sb = new StringBundler(43);
 
 		sb.append("<model><model-name>");
 		sb.append("com.liferay.grow.gamification.model.Badge");
@@ -805,6 +870,14 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 		sb.append(getDescription());
 		sb.append("]]></column-value></column>");
 		sb.append(
+			"<column><column-name>delivered</column-name><column-value><![CDATA[");
+		sb.append(isDelivered());
+		sb.append("]]></column-value></column>");
+		sb.append(
+			"<column><column-name>deliveredAfter</column-name><column-value><![CDATA[");
+		sb.append(getDeliveredAfter());
+		sb.append("]]></column-value></column>");
+		sb.append(
 			"<column><column-name>assignedDateId</column-name><column-value><![CDATA[");
 		sb.append(getAssignedDateId());
 		sb.append("]]></column-value></column>");
@@ -839,6 +912,8 @@ public class BadgeModelImpl extends BaseModelImpl<Badge> implements BadgeModel {
 	private long _originalToUserId;
 	private boolean _setOriginalToUserId;
 	private String _description;
+	private boolean _delivered;
+	private Date _deliveredAfter;
 	private long _assignedDateId;
 	private long _columnBitmask;
 	private Badge _escapedModel;

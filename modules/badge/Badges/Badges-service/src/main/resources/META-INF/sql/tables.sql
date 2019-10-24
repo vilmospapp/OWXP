@@ -9,6 +9,8 @@ create table gamification_Badge (
 	badgeTypeId LONG,
 	toUserId LONG,
 	description VARCHAR(255) null,
+	delivered BOOLEAN,
+	deliveredAfter DATE null,
 	assignedDateId LONG
 );
 
@@ -24,7 +26,8 @@ create table gamification_BadgeType (
 	assignableFrom DATE null,
 	assignableTo DATE null,
 	fileEntryId LONG,
-	system BOOLEAN
+	system BOOLEAN,
+	templateHTML STRING null
 );
 
 create table gamification_LDate (

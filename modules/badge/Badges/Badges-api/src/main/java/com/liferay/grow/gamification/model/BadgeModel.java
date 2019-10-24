@@ -237,6 +237,41 @@ public interface BadgeModel extends BaseModel<Badge>, ShardedModel {
 	public void setDescription(String description);
 
 	/**
+	 * Returns the delivered of this badge.
+	 *
+	 * @return the delivered of this badge
+	 */
+	public boolean getDelivered();
+
+	/**
+	 * Returns <code>true</code> if this badge is delivered.
+	 *
+	 * @return <code>true</code> if this badge is delivered; <code>false</code> otherwise
+	 */
+	public boolean isDelivered();
+
+	/**
+	 * Sets whether this badge is delivered.
+	 *
+	 * @param delivered the delivered of this badge
+	 */
+	public void setDelivered(boolean delivered);
+
+	/**
+	 * Returns the delivered after of this badge.
+	 *
+	 * @return the delivered after of this badge
+	 */
+	public Date getDeliveredAfter();
+
+	/**
+	 * Sets the delivered after of this badge.
+	 *
+	 * @param deliveredAfter the delivered after of this badge
+	 */
+	public void setDeliveredAfter(Date deliveredAfter);
+
+	/**
 	 * Returns the assigned date ID of this badge.
 	 *
 	 * @return the assigned date ID of this badge

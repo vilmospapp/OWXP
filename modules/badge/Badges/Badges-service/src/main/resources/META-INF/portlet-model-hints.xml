@@ -14,6 +14,8 @@
 		<field name="description" type="String">
 			<hint name="max-length">255</hint>
 		</field>
+		<field name="delivered" type="boolean" />
+		<field name="deliveredAfter" type="Date" />
 		<field name="assignedDateId" type="long" />
 	</model>
 	<model name="com.liferay.grow.gamification.model.BadgeType">
@@ -29,6 +31,9 @@
 		<field name="assignableTo" type="Date" />
 		<field name="fileEntryId" type="long" />
 		<field name="system" type="boolean" />
+		<field name="templateHTML" type="String">
+			<hint name="max-length">4000</hint>
+		</field>
 	</model>
 	<model name="com.liferay.grow.gamification.model.LDate">
 		<field name="dateId" type="long" />

@@ -64,7 +64,7 @@ public class BadgeCacheModel implements CacheModel<Badge>, Externalizable {
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(27);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -86,6 +86,10 @@ public class BadgeCacheModel implements CacheModel<Badge>, Externalizable {
 		sb.append(toUserId);
 		sb.append(", description=");
 		sb.append(description);
+		sb.append(", delivered=");
+		sb.append(delivered);
+		sb.append(", deliveredAfter=");
+		sb.append(deliveredAfter);
 		sb.append(", assignedDateId=");
 		sb.append(assignedDateId);
 		sb.append("}");
@@ -133,6 +137,15 @@ public class BadgeCacheModel implements CacheModel<Badge>, Externalizable {
 			badgeImpl.setDescription(description);
 		}
 
+		badgeImpl.setDelivered(delivered);
+
+		if (deliveredAfter == Long.MIN_VALUE) {
+			badgeImpl.setDeliveredAfter(null);
+		}
+		else {
+			badgeImpl.setDeliveredAfter(new Date(deliveredAfter));
+		}
+
 		badgeImpl.setAssignedDateId(assignedDateId);
 
 		badgeImpl.resetOriginalValues();
@@ -158,6 +171,9 @@ public class BadgeCacheModel implements CacheModel<Badge>, Externalizable {
 
 		toUserId = objectInput.readLong();
 		description = objectInput.readUTF();
+
+		delivered = objectInput.readBoolean();
+		deliveredAfter = objectInput.readLong();
 
 		assignedDateId = objectInput.readLong();
 	}
@@ -200,6 +216,9 @@ public class BadgeCacheModel implements CacheModel<Badge>, Externalizable {
 			objectOutput.writeUTF(description);
 		}
 
+		objectOutput.writeBoolean(delivered);
+		objectOutput.writeLong(deliveredAfter);
+
 		objectOutput.writeLong(assignedDateId);
 	}
 
@@ -213,5 +232,7 @@ public class BadgeCacheModel implements CacheModel<Badge>, Externalizable {
 	public long badgeTypeId;
 	public long toUserId;
 	public String description;
+	public boolean delivered;
+	public long deliveredAfter;
 	public long assignedDateId;
 }

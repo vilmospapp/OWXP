@@ -67,6 +67,8 @@ public class BadgeWrapper implements Badge, ModelWrapper<Badge> {
 		attributes.put("badgeTypeId", getBadgeTypeId());
 		attributes.put("toUserId", getToUserId());
 		attributes.put("description", getDescription());
+		attributes.put("delivered", isDelivered());
+		attributes.put("deliveredAfter", getDeliveredAfter());
 		attributes.put("assignedDateId", getAssignedDateId());
 
 		return attributes;
@@ -134,6 +136,18 @@ public class BadgeWrapper implements Badge, ModelWrapper<Badge> {
 			setDescription(description);
 		}
 
+		Boolean delivered = (Boolean)attributes.get("delivered");
+
+		if (delivered != null) {
+			setDelivered(delivered);
+		}
+
+		Date deliveredAfter = (Date)attributes.get("deliveredAfter");
+
+		if (deliveredAfter != null) {
+			setDeliveredAfter(deliveredAfter);
+		}
+
 		Long assignedDateId = (Long)attributes.get("assignedDateId");
 
 		if (assignedDateId != null) {
@@ -199,6 +213,26 @@ public class BadgeWrapper implements Badge, ModelWrapper<Badge> {
 	@Override
 	public Date getCreateDate() {
 		return _badge.getCreateDate();
+	}
+
+	/**
+	* Returns the delivered of this badge.
+	*
+	* @return the delivered of this badge
+	*/
+	@Override
+	public boolean getDelivered() {
+		return _badge.getDelivered();
+	}
+
+	/**
+	* Returns the delivered after of this badge.
+	*
+	* @return the delivered after of this badge
+	*/
+	@Override
+	public Date getDeliveredAfter() {
+		return _badge.getDeliveredAfter();
 	}
 
 	/**
@@ -311,6 +345,16 @@ public class BadgeWrapper implements Badge, ModelWrapper<Badge> {
 		return _badge.isCachedModel();
 	}
 
+	/**
+	* Returns <code>true</code> if this badge is delivered.
+	*
+	* @return <code>true</code> if this badge is delivered; <code>false</code> otherwise
+	*/
+	@Override
+	public boolean isDelivered() {
+		return _badge.isDelivered();
+	}
+
 	@Override
 	public boolean isEscapedModel() {
 		return _badge.isEscapedModel();
@@ -379,6 +423,26 @@ public class BadgeWrapper implements Badge, ModelWrapper<Badge> {
 	@Override
 	public void setCreateDate(Date createDate) {
 		_badge.setCreateDate(createDate);
+	}
+
+	/**
+	* Sets whether this badge is delivered.
+	*
+	* @param delivered the delivered of this badge
+	*/
+	@Override
+	public void setDelivered(boolean delivered) {
+		_badge.setDelivered(delivered);
+	}
+
+	/**
+	* Sets the delivered after of this badge.
+	*
+	* @param deliveredAfter the delivered after of this badge
+	*/
+	@Override
+	public void setDeliveredAfter(Date deliveredAfter) {
+		_badge.setDeliveredAfter(deliveredAfter);
 	}
 
 	/**
