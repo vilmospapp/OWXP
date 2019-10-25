@@ -50,7 +50,7 @@ public class BadgeNotificationScheduler extends BaseMessageListener {
 		List<Badge> badges = _badgeLocalService.getUndeliveredBadges();
 
 		for (Badge badge : badges) {
-			if (badge.getDeliveredAfter().before(new Date())) {
+			if ((badge.getDeliveredAfter() != null) && badge.getDeliveredAfter().before(new Date())) {
 				_badgeLocalService.notifySubscribers(badge);
 			}
 		}
