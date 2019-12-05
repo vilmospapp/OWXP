@@ -2,28 +2,21 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * The contents of this file are subject to the terms of the Liferay Enterprise
+ * Subscription License ("License"). You may not use this file except in
+ * compliance with the License. You can obtain a copy of the License by
+ * contacting Liferay, Inc. See the License for the specific language governing
+ * permissions and limitations under the License, including but not limited to
+ * distribution rights of the Software.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ *
+ *
  */
 --%>
 
 <%@ include file="/init.jsp" %>
 
-<%@ page import="com.liferay.portal.kernel.model.UserNotificationDeliveryConstants" %><%@
-page import="com.liferay.portal.kernel.portlet.PortalPreferences" %><%@
-page import="com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil" %><%@
-page import="com.liferay.portal.kernel.service.UserNotificationEventLocalServiceUtil" %>
-
 <%
-_resetUserNoticationEventsCount(themeDisplay.getUserId());
-
 String navigation = ParamUtil.getString(request, "navigation", "all");
 
 boolean actionRequired = ParamUtil.getBoolean(request, "actionRequired");
@@ -52,8 +45,8 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 %>
 
 <clay:navigation-bar
-	inverted="<%= true %>"
-	navigationItems="<%=
+	inverted="<%= layout.isTypeControlPanel() %>"
+	navigationItems='<%=
 		new JSPNavigationItemList(pageContext) {
 			{
 				add(
@@ -72,14 +65,16 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 					});
 			}
 		}
-	%>"
+	%>'
 />
 
 <clay:management-toolbar
 	actionDropdownItems="<%= notificationsManagementToolbarDisplayContext.getActionDropdownItems() %>"
+	clearResultsURL="<%= notificationsManagementToolbarDisplayContext.getClearResultsURL() %>"
 	componentId="notificationsManagementToolbar"
 	disabled="<%= NotificationsUtil.getAllNotificationsCount(themeDisplay.getUserId(), actionRequired) == 0 %>"
 	filterDropdownItems="<%= notificationsManagementToolbarDisplayContext.getFilterDropdownItems() %>"
+	filterLabelItems="<%= notificationsManagementToolbarDisplayContext.getFilterLabelItems() %>"
 	itemsTotal="<%= notificationsSearchContainer.getTotal() %>"
 	searchContainerId="<%= searchContainerId %>"
 	selectable="<%= actionRequired ? false : true %>"
@@ -108,6 +103,7 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 
 					UserNotificationFeedEntry userNotificationFeedEntry = UserNotificationManagerUtil.interpret(StringPool.BLANK, userNotificationEvent, ServiceContextFactory.getInstance(request));
 
+					rowData.put("actions", StringUtil.merge(notificationsManagementToolbarDisplayContext.getAvailableActions(userNotificationEvent, userNotificationFeedEntry)));
 					rowData.put("userNotificationFeedEntry", userNotificationFeedEntry);
 
 					row.setData(rowData);
@@ -182,34 +178,31 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 
 			var currentTarget = event.currentTarget;
 
-			A.io.request(
+			Liferay.Util.fetch(
 				currentTarget.attr('href'),
 				{
-					dataType: 'JSON',
-					on: {
-						success: function() {
-							var responseData = this.get('responseData');
+					method: 'POST'
+				}
+			).then(function(response) {
+				return response.json();
+			}).then(function(response) {
+				if (response.success) {
+					var notificationContainer = currentTarget.ancestor('li.list-group-item');
 
-							if (responseData.success) {
-								var notificationContainer = currentTarget.ancestor('li.list-group-item');
+					if (notificationContainer) {
+						var markAsReadURL = notificationContainer.one('a').attr('href');
 
-								if (notificationContainer) {
-									var markAsReadURL = notificationContainer.one('a').attr('href');
+						form.attr('method', 'post');
 
-									form.attr('method', 'post');
+						submitForm(form, markAsReadURL);
 
-									submitForm(form, markAsReadURL);
-
-									notificationContainer.remove();
-								}
-							}
-							else {
-								getNotice().show();
-							}
-						}
+						notificationContainer.remove();
 					}
 				}
-			);
+				else {
+					getNotice().show();
+				}
+			});
 		},
 		'.user-notification-action'
 	);
@@ -233,14 +226,3 @@ navigationURL.setParameter(SearchContainer.DEFAULT_CUR_PARAM, "0");
 		return notice;
 	}
 </aui:script>
-
-<%!
-private void _resetUserNoticationEventsCount(long userId) {
-	PortalPreferences portalPreferences =
-		PortletPreferencesFactoryUtil.getPortalPreferences(userId, true);
-
-	portalPreferences.setValue(UserNotificationEvent.class.getName(), "useLegacyUserNotificationEventsCount", "false");
-
-	portalPreferences.setValue(UserNotificationEvent.class.getName(), "userNotificationEventsCount", "0");
-}
-%>
