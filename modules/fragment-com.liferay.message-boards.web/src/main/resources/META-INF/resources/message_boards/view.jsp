@@ -255,7 +255,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 											buttonStyle="primary"
 											elementClasses="btn-sm"
 											href="<%= editMessageURL %>"
-											label='<%= addQuestionLabel %>
+											label="<%= addQuestionLabel %>"
 										/>
 									</div>
 								</c:if>
