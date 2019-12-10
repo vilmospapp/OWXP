@@ -72,7 +72,8 @@ if (portletTitleBasedNavigation) {
 					message="actions"
 					showWhenSingleIcon="<%= true %>"
 				>
-					<c:if test="<%= !thread.isLocked() && !thread.isInTrash() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.PERMISSIONS) %>">
+					<c:if test="<%= false && !thread.isLocked() && !thread.isInTrash() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.PERMISSIONS) %>">
+
 						<liferay-security:permissionsURL
 							modelResource="<%= MBMessage.class.getName() %>"
 							modelResourceDescription="<%= rootMessage.getSubject() %>"
@@ -127,7 +128,7 @@ if (portletTitleBasedNavigation) {
 						</c:choose>
 					</c:if>
 
-					<c:if test="<%= !thread.isInTrash() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, (category != null) ? category.getCategoryId() : MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, ActionKeys.LOCK_THREAD) %>">
+					<c:if test="<%= false && !thread.isInTrash() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, (category != null) ? category.getCategoryId() : MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, ActionKeys.LOCK_THREAD) %>">
 						<c:choose>
 							<c:when test="<%= thread.isLocked() %>">
 								<portlet:actionURL name="/message_boards/edit_message" var="unlockThreadURL">
@@ -156,7 +157,7 @@ if (portletTitleBasedNavigation) {
 						</c:choose>
 					</c:if>
 
-					<c:if test="<%= !thread.isInTrash() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, (category != null) ? category.getCategoryId() : MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, ActionKeys.MOVE_THREAD) %>">
+					<c:if test="<%= false && !thread.isInTrash() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, (category != null) ? category.getCategoryId() : MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, ActionKeys.MOVE_THREAD) %>">
 						<portlet:renderURL var="editThreadURL">
 							<portlet:param name="mvcRenderCommandName" value="/message_boards/move_thread" />
 							<portlet:param name="redirect" value="<%= currentURL %>" />
@@ -170,7 +171,7 @@ if (portletTitleBasedNavigation) {
 						/>
 					</c:if>
 
-					<c:if test="<%= MBMessagePermission.contains(permissionChecker, message, ActionKeys.DELETE) && !thread.isLocked() %>">
+					<c:if test="<%= false && MBMessagePermission.contains(permissionChecker, message, ActionKeys.DELETE) && !thread.isLocked() %>">
 						<portlet:renderURL var="parentCategoryURL">
 							<c:choose>
 								<c:when test="<%= (category == null) || (category.getCategoryId() == MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) %>">
@@ -280,7 +281,7 @@ if (portletTitleBasedNavigation) {
 		String taglibReplyToMessageURL = "javascript:" + liferayPortletResponse.getNamespace() + "addReplyToMessage('" + rootMessage.getMessageId() + "', '');";
 		%>
 
-		<aui:button onclick="<%= taglibReplyToMessageURL %>" primary="<%= true %>" value="reply" />
+		<aui:button onclick="<%= taglibReplyToMessageURL %>" primary="<%= true %>" value="POST AN ANSWER" />
 	</c:if>
 
 	<c:if test="<%= !thread.isInTrash() && moreMessagesPagination %>">

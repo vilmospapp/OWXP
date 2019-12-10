@@ -93,7 +93,7 @@ else {
 	}
 }
 
-String headerTitle = LanguageUtil.get(request, "add-message");
+String headerTitle = "Ask a question";
 
 if (curParentMessage != null) {
 	headerTitle = LanguageUtil.format(request, "reply-to-x", HtmlUtil.escape(curParentMessage.getSubject()), false);
@@ -300,7 +300,7 @@ if (portletTitleBasedNavigation) {
 				</aui:fieldset>
 			</c:if>
 
-			<c:if test="<%= curParentMessage == null %>">
+			<c:if test="<%= isCategoryActive %>">
 				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="categorization">
 					<liferay-asset:asset-tags-selector
 						className="<%= MBMessage.class.getName() %>"
@@ -349,11 +349,11 @@ if (portletTitleBasedNavigation) {
 					<aui:input helpMessage="message-boards-message-anonymous-help" name="anonymous" type="checkbox" />
 				</c:if>
 
-				<c:if test="<%= (message == null) && themeDisplay.isSignedIn() && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBThread.class.getName(), threadId) && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBCategory.class.getName(), categoryId) %>">
+				<c:if test="<%= false && (message == null) && themeDisplay.isSignedIn() && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBThread.class.getName(), threadId) && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBCategory.class.getName(), categoryId) %>">
 					<aui:input helpMessage="message-boards-message-subscribe-me-help" label="subscribe-me" name="subscribe" type='<%= (mbGroupServiceSettings.isEmailMessageAddedEnabled() || mbGroupServiceSettings.isEmailMessageUpdatedEnabled()) ? "checkbox" : "hidden" %>' value="<%= subscribeByDefault %>" />
 				</c:if>
 
-				<c:if test="<%= (priorities.length > 0) && MBCategoryPermission.contains(permissionChecker, scopeGroupId, categoryId, ActionKeys.UPDATE_THREAD_PRIORITY) %>">
+				<c:if test="<%= false (priorities.length > 0) && MBCategoryPermission.contains(permissionChecker, scopeGroupId, categoryId, ActionKeys.UPDATE_THREAD_PRIORITY) %>">
 
 					<%
 					double threadPriority = BeanParamUtil.getDouble(message, request, "priority");
@@ -386,12 +386,12 @@ if (portletTitleBasedNavigation) {
 					</aui:select>
 				</c:if>
 
-				<c:if test="<%= PropsValues.MESSAGE_BOARDS_PINGBACK_ENABLED %>">
+				<c:if test="<%= false && PropsValues.MESSAGE_BOARDS_PINGBACK_ENABLED %>">
 					<aui:input helpMessage="to-allow-pingbacks,-please-also-ensure-the-entry's-guest-view-permission-is-enabled" label="allow-pingbacks" name="allowPingbacks" value="<%= allowPingbacks %>" />
 				</c:if>
 			</aui:fieldset>
 
-			<c:if test="<%= message == null %>">
+			<c:if test="<%= false && message == null %>">
 				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="permissions">
 					<liferay-ui:input-permissions
 						modelName="<%= MBMessage.class.getName() %>"
@@ -431,7 +431,7 @@ if (portletTitleBasedNavigation) {
 				saveButtonLabel = "save-as-draft";
 			}
 
-			String publishButtonLabel = "publish";
+			String publishButtonLabel = "Post now";
 
 			if (WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), scopeGroupId, MBMessage.class.getName())) {
 				publishButtonLabel = "submit-for-publication";
@@ -446,7 +446,7 @@ if (portletTitleBasedNavigation) {
 
 			<aui:button disabled="<%= pending %>" name="publishButton" type="submit" value="<%= publishButtonLabel %>" />
 
-			<c:if test="<%= themeDisplay.isSignedIn() %>">
+			<c:if test="<%= false && themeDisplay.isSignedIn() %>">
 				<aui:button name="saveButton" value="<%= saveButtonLabel %>" />
 			</c:if>
 

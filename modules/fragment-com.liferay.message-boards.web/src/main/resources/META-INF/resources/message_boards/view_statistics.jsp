@@ -53,12 +53,14 @@ portletURL.setParameter("mbCategoryId", String.valueOf(categoryId));
 			title="general"
 		>
 			<dl>
-				<dt>
-					<liferay-ui:message key="categories" />:
-				</dt>
-				<dd>
-					<%= numberFormat.format(categoryDisplay.getAllCategoriesCount()) %>
-				</dd>
+				<c:if test="<%= isCategoryActive %>">
+					<dt>	
+						<liferay-ui:message key="categories" />:
+					</dt>
+					<dd>
+						<%= numberFormat.format(categoryDisplay.getAllCategoriesCount()) %>
+					</dd>
+				</c:if>
 				<dt>
 					<c:choose>
 						<c:when test="<%= MBStatsUserLocalServiceUtil.getMessageCountByGroupId(scopeGroupId) == 1 %>">

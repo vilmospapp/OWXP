@@ -20,6 +20,9 @@
 String mvcRenderCommandName = ParamUtil.getString(request, "mvcRenderCommandName", "/message_boards/view");
 
 boolean signedIn = themeDisplay.isSignedIn();
+String recentQuestionLabel= "Recent Questions";
+String allQuestionsLabel = "All Questions";
+
 %>
 
 <clay:navigation-bar
@@ -35,7 +38,7 @@ boolean signedIn = themeDisplay.isSignedIn();
 					navigationItem -> {
 						navigationItem.setActive(mvcRenderCommandName.equals("/message_boards/edit_category") || mvcRenderCommandName.equals("/message_boards/edit_message") || mvcRenderCommandName.equals("/message_boards/view") || mvcRenderCommandName.equals("/message_boards/view_category") || mvcRenderCommandName.equals("/message_boards/view_message"));
 						navigationItem.setHref(messageBoardsHomeURL);
-						navigationItem.setLabel(LanguageUtil.get(request, "categories"));
+						navigationItem.setLabel(allQuestionsLabel);
 					});
 
 				PortletURL viewRecentPostsURL = renderResponse.createRenderURL();
@@ -46,7 +49,7 @@ boolean signedIn = themeDisplay.isSignedIn();
 					navigationItem -> {
 						navigationItem.setActive(mvcRenderCommandName.equals("/message_boards/view_recent_posts"));
 						navigationItem.setHref(viewRecentPostsURL);
-						navigationItem.setLabel(LanguageUtil.get(request, "recent-posts"));
+						navigationItem.setLabel(recentQuestionLabel);
 					});
 
 				if (signedIn) {

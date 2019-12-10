@@ -58,6 +58,7 @@ if (cur2 > 0) {
 portletURL.setParameter("mbCategoryId", String.valueOf(categoryId));
 
 String keywords = ParamUtil.getString(request, "keywords");
+String addQuestionLabel = "ASK A QUESTION";
 
 if (Validator.isNotNull(keywords)) {
 	portletURL.setParameter("keywords", keywords);
@@ -118,7 +119,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 			<liferay-ui:search-container
 				curParam="cur1"
 				deltaConfigurable="<%= false %>"
-				emptyResultsMessage="you-are-not-subscribed-to-any-categories"
+				emptyResultsMessage="You are not subscribed to any Questions"
 				headerNames="category,categories,threads,posts"
 				iteratorURL="<%= portletURL %>"
 				total="<%= MBCategoryServiceUtil.getSubscribedCategoriesCount(scopeGroupId, user.getUserId()) %>"
@@ -176,9 +177,9 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 					</c:if>
 
 					<%
-					boolean showAddCategoryButton = MBCategoryPermission.contains(permissionChecker, scopeGroupId, categoryId, ActionKeys.ADD_CATEGORY);
-					boolean showAddMessageButton = MBCategoryPermission.contains(permissionChecker, scopeGroupId, categoryId, ActionKeys.ADD_MESSAGE);
-					boolean showPermissionsButton = MBResourcePermission.contains(permissionChecker, scopeGroupId, ActionKeys.PERMISSIONS);
+					boolean showAddCategoryButton = isCategoryActive;//MBCategoryPermission.contains(permissionChecker, scopeGroupId, categoryId, ActionKeys.ADD_CATEGORY);
+					boolean showAddMessageButton = true;//MBCategoryPermission.contains(permissionChecker, scopeGroupId, categoryId, ActionKeys.ADD_MESSAGE);
+					boolean showPermissionsButton = false;//MBResourcePermission.contains(permissionChecker, scopeGroupId, ActionKeys.PERMISSIONS);
 
 					if (showAddMessageButton && !themeDisplay.isSignedIn()) {
 						if (!allowAnonymousPosting) {
@@ -254,7 +255,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 											buttonStyle="primary"
 											elementClasses="btn-sm"
 											href="<%= editMessageURL %>"
-											label='<%= LanguageUtil.get(request, "new-thread") %>'
+											label='<%= addQuestionLabel %>
 										/>
 									</div>
 								</c:if>
@@ -387,7 +388,9 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 					</div>
 
 					<%
-					SearchContainer categoryEntriesSearchContainer = new SearchContainer(renderRequest, null, null, "cur1", 0, mbListDisplayContext.getCategoryEntriesDelta(), PortletURLUtil.clone(portletURL, renderResponse), null, "there-are-no-threads-or-categories");
+					SearchContainer categoryEntriesSearchContainer = new SearchContainer(renderRequest, null, null, "cur1", 0, mbListDisplayContext.getCategoryEntriesDelta(), PortletURLUtil.clone(portletURL, renderResponse), null, "There are no questions posted yet. Be the first to ask!");
+
+
 
 					mbListDisplayContext.setCategoryEntriesDelta(categoryEntriesSearchContainer);
 
@@ -405,7 +408,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 					</c:if>
 
 					<%
-					SearchContainer threadEntriesSearchContainer = new SearchContainer(renderRequest, null, null, "cur2", 0, mbListDisplayContext.getThreadEntriesDelta(), PortletURLUtil.clone(portletURL, renderResponse), null, "there-are-no-threads-or-categories");
+					SearchContainer threadEntriesSearchContainer = new SearchContainer(renderRequest, null, null, "cur2", 0, mbListDisplayContext.getThreadEntriesDelta(), PortletURLUtil.clone(portletURL, renderResponse), null, "There are no questions posted yet. Be the first to ask!");
 
 					mbListDisplayContext.setThreadEntriesDelta(threadEntriesSearchContainer);
 
@@ -422,7 +425,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 
 					<c:if test="<%= (categoryEntriesSearchContainer.getTotal() <= 0) && (threadEntriesSearchContainer.getTotal() <= 0) %>">
 						<liferay-ui:empty-result-message
-							message="there-are-no-threads-or-categories"
+							message="There are no questions posted yet. Be the first to ask!"
 						/>
 					</c:if>
 
@@ -441,7 +444,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 						<c:when test="<%= mbListDisplayContext.isShowRecentPosts() %>">
 							<div class="autofit-float autofit-row">
 								<div class="autofit-col autofit-col-expand">
-									<h3><liferay-ui:message key="recent-posts" /></h3>
+									<h3><liferay-ui:message key="Recent Questions" /></h3>
 								</div>
 
 								<div class="autofit-col autofit-col-end">
@@ -518,7 +521,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 					%>
 
 					<%
-					SearchContainer threadEntriesSearchContainer = new SearchContainer(renderRequest, null, null, "cur1", 0, mbListDisplayContext.getThreadEntriesDelta(), portletURL, null, "there-are-no-threads");
+					SearchContainer threadEntriesSearchContainer = new SearchContainer(renderRequest, null, null, "cur1", 0, mbListDisplayContext.getThreadEntriesDelta(), portletURL, null, "There are no questions posted yet. Be the first to ask!");
 
 					mbListDisplayContext.setThreadEntriesDelta(threadEntriesSearchContainer);
 
@@ -538,7 +541,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 						pageSubtitle = "my-posts";
 					}
 					else if (mbListDisplayContext.isShowRecentPosts()) {
-						pageSubtitle = "recent-posts";
+						pageSubtitle = "Recent Questions";
 					}
 
 					PortalUtil.setPageSubtitle(LanguageUtil.get(request, StringUtil.replace(pageSubtitle, CharPool.UNDERLINE, CharPool.DASH)), request);

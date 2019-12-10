@@ -262,9 +262,7 @@ MBCategoryDisplay categoryDisplay = new MBCategoryDisplay(scopeGroupId, category
 								%>
 
 								<div>
-									<%= threadAnswersCount %>
-
-									<liferay-ui:message key='<%= (threadAnswersCount == 1) ? "answer" : "answers" %>' />
+									<liferay-ui:message key='<%= (threadAnswersCount == 0) ? "Unanswered" : "answered" %>' />
 								</div>
 							</c:if>
 
