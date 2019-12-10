@@ -2,15 +2,15 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * The contents of this file are subject to the terms of the Liferay Enterprise
+ * Subscription License ("License"). You may not use this file except in
+ * compliance with the License. You can obtain a copy of the License by
+ * contacting Liferay, Inc. See the License for the specific language governing
+ * permissions and limitations under the License, including but not limited to
+ * distribution rights of the Software.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ *
+ *
  */
 --%>
 
@@ -26,14 +26,14 @@ Boolean showPermanentLink = (Boolean)request.getAttribute("edit-message.jsp-show
 Boolean showRecentPosts = (Boolean)request.getAttribute("edit-message.jsp-showRecentPosts");
 MBThread thread = (MBThread)request.getAttribute("edit_message.jsp-thread");
 
-if (message.isAnonymous()) {
+if (message.isAnonymous() || thread.isInTrash()) {
 	showRecentPosts = false;
 }
 %>
 
 <a id="<portlet:namespace />message_<%= message.getMessageId() %>"></a>
 
-<div class="card list-group-card panel">
+<div class="card panel">
 	<div class="panel-heading">
 		<div class="card-row card-row-padded">
 			<div class="card-col-field">
@@ -113,7 +113,14 @@ if (message.isAnonymous()) {
 					</c:if>
 
 					<span class="h5 text-default">
-						<span><liferay-ui:message key="posts" />:</span> <%= posts %>
+						<c:choose>
+							<c:when test="<%= posts == 1 %>">
+								<span><liferay-ui:message key="post" />:</span> <%= posts %>
+							</c:when>
+							<c:otherwise>
+								<span><liferay-ui:message key="posts" />:</span> <%= posts %>
+							</c:otherwise>
+						</c:choose>
 					</span>
 
 					<c:if test="<%= !message.isAnonymous() %>">
@@ -131,8 +138,9 @@ if (message.isAnonymous()) {
 
 						<span class="h5">
 							<liferay-ui:icon
-								iconCssClass="icon-search"
+								icon="search"
 								label="<%= true %>"
+								markupView="lexicon"
 								message="recent-posts"
 								method="get"
 								url="<%= recentPostsURL.toString() %>"
@@ -165,7 +173,8 @@ if (message.isAnonymous()) {
 								classPK="<%= message.getMessageId() %>"
 								contentTitle="<%= message.getSubject() %>"
 								enabled="<%= !message.isInTrash() %>"
-								message='<%= message.isInTrash() ? "flags-are-disabled-because-this-entry-is-in-the-recycle-bin" : StringPool.BLANK %>'
+								label="<%= false %>"
+								message='<%= message.isInTrash() ? "flags-are-disabled-because-this-entry-is-in-the-recycle-bin" : null %>'
 								reportedUserId="<%= message.getUserId() %>"
 							/>
 						</c:if>
@@ -177,19 +186,30 @@ if (message.isAnonymous()) {
 				<c:if test="<%= editable %>">
 
 					<%
-					boolean hasBanUserPermission = false;//(messageUser != null) && (user.getUserId() != messageUser.getUserId()) && MBResourcePermission.contains(permissionChecker, scopeGroupId, ActionKeys.BAN_USER) && !PortalUtil.isGroupAdmin(messageUser, scopeGroupId);
-					boolean hasDeletePermission = false;//!thread.isLocked() && (thread.getMessageCount() > 1) && MBMessagePermission.contains(permissionChecker, message, ActionKeys.DELETE);
-					boolean hasMoveThreadPermission = false;//(message.getParentMessageId() != MBMessageConstants.DEFAULT_PARENT_MESSAGE_ID) && MBCategoryPermission.contains(permissionChecker, scopeGroupId, category.getCategoryId(), ActionKeys.MOVE_THREAD);
-					boolean hasPermissionsPermission = false;//!thread.isLocked() && !message.isRoot() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.PERMISSIONS);
-					boolean hasReplyPermission = !thread.isLocked() && !message.isDraft() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, message.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE);
+					boolean hasBanUserPermission = (messageUser != null) && (user.getUserId() != messageUser.getUserId()) && MBResourcePermission.contains(permissionChecker, scopeGroupId, ActionKeys.BAN_USER) && !PortalUtil.isGroupAdmin(messageUser, scopeGroupId);
+					boolean hasDeletePermission = !thread.isLocked() && (thread.getMessageCount() > 1) && MBMessagePermission.contains(permissionChecker, message, ActionKeys.DELETE);
+					boolean hasMoveThreadPermission = (message.getParentMessageId() != MBMessageConstants.DEFAULT_PARENT_MESSAGE_ID) && MBCategoryPermission.contains(permissionChecker, scopeGroupId, category.getCategoryId(), ActionKeys.MOVE_THREAD);
+					boolean hasPermissionsPermission = !thread.isLocked() && !message.isRoot() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.PERMISSIONS);
+					boolean hasReplyPermission = thread.isApproved() && !thread.isLocked() && !message.isDraft() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, message.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE);
 					boolean hasUpdatePermission = !thread.isLocked() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.UPDATE);
 
 					boolean showAnswerFlag = false;
 
-					if (!message.isRoot()) {
-						MBMessage rootMessage = MBMessageLocalServiceUtil.getMessage(thread.getRootMessageId());
+					if (thread.isQuestion() && !message.isRoot()) {
+						MBMessageDisplay messageDisplay = (MBMessageDisplay)request.getAttribute(WebKeys.MESSAGE_BOARDS_MESSAGE_DISPLAY);
 
-						showAnswerFlag = false; // MBMessagePermission.contains(permissionChecker, rootMessage, ActionKeys.UPDATE) && (thread.isQuestion() || MBThreadLocalServiceUtil.hasAnswerMessage(thread.getThreadId()));
+						MBMessage rootMessage;
+
+						if (messageDisplay != null) {
+							MBTreeWalker mbTreeWalker = messageDisplay.getTreeWalker();
+
+							rootMessage = mbTreeWalker.getRoot();
+						}
+						else {
+							rootMessage = MBMessageLocalServiceUtil.getMessage(thread.getRootMessageId());
+						}
+
+						showAnswerFlag = MBMessagePermission.contains(permissionChecker, rootMessage, ActionKeys.UPDATE);
 					}
 					%>
 
@@ -198,7 +218,7 @@ if (message.isAnonymous()) {
 							direction="left-side"
 							icon="<%= StringPool.BLANK %>"
 							markupView="lexicon"
-							message="<%= StringPool.BLANK %>"
+							message="actions"
 							showWhenSingleIcon="<%= true %>"
 						>
 							<c:if test="<%= showAnswerFlag %>">
@@ -252,18 +272,7 @@ if (message.isAnonymous()) {
 								</portlet:renderURL>
 
 								<%
-								String quoteText = null;
-
-								if (messageFormat.equals("bbcode")) {
-									quoteText = MBUtil.getBBCodeQuoteBody(request, message);
-								}
-								else {
-									quoteText = MBUtil.getHtmlQuoteBody(request, message);
-								}
-
-								quoteText = HtmlUtil.escapeJS(quoteText);
-
-								String taglibReplyWithQuoteToMessageURL = "javascript:" + liferayPortletResponse.getNamespace() + "addReplyToMessage('" + message.getMessageId() + "', '" + quoteText + "');";
+								String taglibReplyWithQuoteToMessageURL = "javascript:" + liferayPortletResponse.getNamespace() + "addReplyToMessage('" + message.getMessageId() + "', true);";
 								%>
 
 								<liferay-ui:icon
@@ -396,40 +405,7 @@ if (message.isAnonymous()) {
 		<%
 		String assetTagNames = (String)request.getAttribute("edit_message.jsp-assetTagNames");
 		%>
-		<c:if test="<%= editable %>">
 
-			<%
-			boolean isOwner = thread.getUserId() == user.getUserId();
-			boolean hasAnswered = MBThreadLocalServiceUtil.hasAnswerMessage(thread.getThreadId());
-			%>
-
-			<div class="mark-as-answer">
-				<c:if test="<%= !message.isRoot() && isOwner %>">
-					<c:choose>
-						<c:when test="<%= message.isAnswer() %>">
-							<portlet:actionURL name="/message_boards/edit_message" var="deleteAnswerURL">
-								<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE_ANSWER %>" />
-								<portlet:param name="redirect" value="<%= currentURL %>" />
-								<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
-							</portlet:actionURL>
-
-							<aui:button cssClass="btn-lg" href="<%= deleteAnswerURL.toString() %>" primary="<%= true %>" value="unmark-as-an-answer" />
-						</c:when>
-						<c:otherwise>
-							<c:if test="<%= !hasAnswered %>">
-								<portlet:actionURL name="/message_boards/edit_message" var="addAnswerURL">
-									<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.ADD_ANSWER %>" />
-									<portlet:param name="redirect" value="<%= currentURL %>" />
-									<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
-								</portlet:actionURL>
-
-								<aui:button cssClass="btn-lg" href="<%= addAnswerURL.toString() %>" primary="<%= true %>" value="mark-as-an-answer" />
-							</c:if>
-						</c:otherwise>
-					</c:choose>
-				</c:if>
-			</div>
-		</c:if>
 		<div class="card-row card-row-padded tags">
 			<liferay-asset:asset-tags-summary
 				assetTagNames="<%= assetTagNames %>"

@@ -2,15 +2,15 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * The contents of this file are subject to the terms of the Liferay Enterprise
+ * Subscription License ("License"). You may not use this file except in
+ * compliance with the License. You can obtain a copy of the License by
+ * contacting Liferay, Inc. See the License for the specific language governing
+ * permissions and limitations under the License, including but not limited to
+ * distribution rights of the Software.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ *
+ *
  */
 --%>
 
@@ -18,6 +18,10 @@
 
 <%
 MBMessageDisplay messageDisplay = (MBMessageDisplay)request.getAttribute(WebKeys.MESSAGE_BOARDS_MESSAGE_DISPLAY);
+
+MBTreeWalker mbTreeWalker = messageDisplay.getTreeWalker();
+
+MBMessage rootMessage = mbTreeWalker.getRoot();
 
 MBMessage message = messageDisplay.getMessage();
 
@@ -65,22 +69,10 @@ if (portletTitleBasedNavigation) {
 					direction="left-side"
 					icon="<%= StringPool.BLANK %>"
 					markupView="lexicon"
-					message="<%= StringPool.BLANK %>"
+					message="actions"
 					showWhenSingleIcon="<%= true %>"
 				>
-					<c:if test="<%= false && !thread.isLocked() && !thread.isInTrash() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.PERMISSIONS) %>">
-
-						<%
-						MBMessage rootMessage = null;
-
-						if (message.isRoot()) {
-							rootMessage = message;
-						}
-						else {
-							rootMessage = MBMessageLocalServiceUtil.getMessage(message.getRootMessageId());
-						}
-						%>
-
+					<c:if test="<%= !thread.isLocked() && !thread.isInTrash() && MBMessagePermission.contains(permissionChecker, message, ActionKeys.PERMISSIONS) %>">
 						<liferay-security:permissionsURL
 							modelResource="<%= MBMessage.class.getName() %>"
 							modelResourceDescription="<%= rootMessage.getSubject() %>"
@@ -135,7 +127,7 @@ if (portletTitleBasedNavigation) {
 						</c:choose>
 					</c:if>
 
-					<c:if test="<%= false && !thread.isInTrash() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, (category != null) ? category.getCategoryId() : MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, ActionKeys.LOCK_THREAD) %>">
+					<c:if test="<%= !thread.isInTrash() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, (category != null) ? category.getCategoryId() : MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, ActionKeys.LOCK_THREAD) %>">
 						<c:choose>
 							<c:when test="<%= thread.isLocked() %>">
 								<portlet:actionURL name="/message_boards/edit_message" var="unlockThreadURL">
@@ -164,7 +156,7 @@ if (portletTitleBasedNavigation) {
 						</c:choose>
 					</c:if>
 
-					<c:if test="<%= false && !thread.isInTrash() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, (category != null) ? category.getCategoryId() : MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, ActionKeys.MOVE_THREAD) %>">
+					<c:if test="<%= !thread.isInTrash() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, (category != null) ? category.getCategoryId() : MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, ActionKeys.MOVE_THREAD) %>">
 						<portlet:renderURL var="editThreadURL">
 							<portlet:param name="mvcRenderCommandName" value="/message_boards/move_thread" />
 							<portlet:param name="redirect" value="<%= currentURL %>" />
@@ -178,7 +170,7 @@ if (portletTitleBasedNavigation) {
 						/>
 					</c:if>
 
-					<c:if test="<%= false && MBMessagePermission.contains(permissionChecker, message, ActionKeys.DELETE) && !thread.isLocked() %>">
+					<c:if test="<%= MBMessagePermission.contains(permissionChecker, message, ActionKeys.DELETE) && !thread.isLocked() %>">
 						<portlet:renderURL var="parentCategoryURL">
 							<c:choose>
 								<c:when test="<%= (category == null) || (category.getCategoryId() == MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) %>">
@@ -211,8 +203,6 @@ if (portletTitleBasedNavigation) {
 <div class="thread-container">
 
 	<%
-	MBTreeWalker treeWalker = messageDisplay.getTreeWalker();
-
 	assetHelper.addLayoutTags(request, AssetTagLocalServiceUtil.getTags(MBMessage.class.getName(), thread.getRootMessageId()));
 	%>
 
@@ -221,9 +211,9 @@ if (portletTitleBasedNavigation) {
 	<div class="card-tab-group message-container" id="<portlet:namespace />messageContainer">
 
 		<%
-		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER, treeWalker);
+		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER, mbTreeWalker);
 		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CATEGORY, category);
-		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CUR_MESSAGE, treeWalker.getRoot());
+		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CUR_MESSAGE, rootMessage);
 		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_DEPTH, Integer.valueOf(0));
 		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_LAST_NODE, Boolean.valueOf(false));
 		request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_SEL_MESSAGE, message);
@@ -238,9 +228,9 @@ if (portletTitleBasedNavigation) {
 		int rootIndexPage = 0;
 		boolean moreMessagesPagination = false;
 
-		List<MBMessage> messages = treeWalker.getMessages();
+		List<MBMessage> messages = mbTreeWalker.getMessages();
 
-		int[] range = treeWalker.getChildrenRange(treeWalker.getRoot());
+		int[] range = mbTreeWalker.getChildrenRange(rootMessage);
 
 		MBMessageIterator mbMessageIterator = new MBMessageIterator(messages, range[0], range[1]);
 
@@ -257,7 +247,7 @@ if (portletTitleBasedNavigation) {
 				break;
 			}
 
-			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER, treeWalker);
+			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER, mbTreeWalker);
 			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CATEGORY, category);
 			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_CUR_MESSAGE, mbMessageIterator.next());
 			request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_WALKER_DEPTH, Integer.valueOf(0));
@@ -284,20 +274,16 @@ if (portletTitleBasedNavigation) {
 		</c:if>
 	</div>
 
-	<%
-	MBMessage rootMessage = treeWalker.getRoot();
-	%>
-
-	<c:if test="<%= !thread.isLocked() && !thread.isDraft() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, rootMessage.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE) %>">
+	<c:if test="<%= thread.isApproved() && !thread.isLocked() && !thread.isDraft() && MBCategoryPermission.contains(permissionChecker, scopeGroupId, rootMessage.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE) %>">
 
 		<%
-		String taglibReplyToMessageURL = "javascript:" + liferayPortletResponse.getNamespace() + "addReplyToMessage('" + rootMessage.getMessageId() + "', false);";
+		String taglibReplyToMessageURL = "javascript:" + liferayPortletResponse.getNamespace() + "addReplyToMessage('" + rootMessage.getMessageId() + "', '');";
 		%>
 
-		<aui:button onclick="<%= taglibReplyToMessageURL %>" primary="<%= true %>" value="POST AN ANSWER" />
+		<aui:button onclick="<%= taglibReplyToMessageURL %>" primary="<%= true %>" value="reply" />
 	</c:if>
 
-	<c:if test="<%= moreMessagesPagination %>">
+	<c:if test="<%= !thread.isInTrash() && moreMessagesPagination %>">
 		<div class="reply-to-main-thread-container">
 			<a class="btn btn-default" href="javascript:;" id="<portlet:namespace />moreMessages"><liferay-ui:message key="more-messages" /></a>
 		</div>
@@ -307,45 +293,61 @@ if (portletTitleBasedNavigation) {
 			<aui:input name="index" type="hidden" value="<%= String.valueOf(index) %>" />
 		</aui:form>
 	</c:if>
-
-	<c:if test="<%= !MBUtil.isViewableMessage(themeDisplay, rootMessage) %>">
-		<div class="alert alert-danger">
-			<liferay-ui:message key="you-do-not-have-permission-to-access-the-requested-resource" />
-		</div>
-	</c:if>
 </div>
 
-<aui:script sandbox="<%= true %>">
-	$('#<portlet:namespace />moreMessages').on(
-		'click',
-		function(event) {
-			var form = $('#<portlet:namespace />fm');
+<aui:script require="metal-dom/src/all/dom as dom">
+	var moreMessagesButton = document.getElementById('<portlet:namespace />moreMessages');
 
-			var data = Liferay.Util.ns(
-				'<portlet:namespace />',
-				{
-					index: form.fm('index').val(),
-					rootIndexPage: form.fm('rootIndexPage').val()
+	if (moreMessagesButton) {
+		moreMessagesButton.addEventListener(
+			'click',
+			function(event) {
+				var form = document.<portlet:namespace />fm;
+
+				var index = Liferay.Util.getFormElement(form, 'index');
+				var rootIndexPage = Liferay.Util.getFormElement(form, 'rootIndexPage');
+
+				var formData = new FormData();
+
+				if (index && rootIndexPage) {
+					formData.append('<portlet:namespace />index', index.value);
+					formData.append('<portlet:namespace />rootIndexPage', rootIndexPage.value);
 				}
-			);
 
-			<portlet:resourceURL id="/message_boards/get_messages" var="getMessagesURL">
-				<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
-			</portlet:resourceURL>
+				<portlet:resourceURL id="/message_boards/get_messages" var="getMessagesURL">
+					<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
+				</portlet:resourceURL>
 
-			$.ajax(
-				'<%= getMessagesURL.toString() %>',
-				{
-					data: data,
-					success: function(data) {
-						var messageContainer = $('#<portlet:namespace />messageContainer');
-
-						messageContainer.append(data);
-
-						messageContainer.append($('#<portlet:namespace />messageContainer > .reply-container'));
+				Liferay.Util.fetch(
+					'<%= getMessagesURL.toString() %>',
+					{
+						body: formData,
+						method: 'POST'
 					}
-				}
-			);
-		}
-	);
+				)
+					.then(
+						function(response) {
+							return response.text();
+						}
+					)
+					.then(
+						function(response) {
+							var messageContainer = document.getElementById('<portlet:namespace />messageContainer');
+
+							if (messageContainer) {
+								dom.append(messageContainer, response);
+
+								dom.globalEval.runScriptsInElement(messageContainer.parentElement);
+
+								var replyContainer = document.querySelector('#<portlet:namespace />messageContainer > .reply-container');
+
+								if (replyContainer) {
+									dom.append(messageContainer, replyContainer);
+								}
+							}
+						}
+					);
+			}
+		);
+	}
 </aui:script>

@@ -2,15 +2,15 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * The contents of this file are subject to the terms of the Liferay Enterprise
+ * Subscription License ("License"). You may not use this file except in
+ * compliance with the License. You can obtain a copy of the License by
+ * contacting Liferay, Inc. See the License for the specific language governing
+ * permissions and limitations under the License, including but not limited to
+ * distribution rights of the Software.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ *
+ *
  */
 --%>
 
@@ -93,7 +93,7 @@ else {
 	}
 }
 
-String headerTitle = "Ask a question";
+String headerTitle = LanguageUtil.get(request, "add-message");
 
 if (curParentMessage != null) {
 	headerTitle = LanguageUtil.format(request, "reply-to-x", HtmlUtil.escape(curParentMessage.getSubject()), false);
@@ -112,7 +112,7 @@ if (portletTitleBasedNavigation) {
 }
 %>
 
-<div <%= portletTitleBasedNavigation ? "class=\"container-fluid-1280\"" : StringPool.BLANK %> id='<%= renderResponse.getNamespace() + "mbEditPageContainer" %>'>
+<div class="container-fluid-1280" id="<%= renderResponse.getNamespace() + "mbEditPageContainer" %>">
 	<c:if test="<%= !portletTitleBasedNavigation %>">
 		<h3><%= headerTitle %></h3>
 	</c:if>
@@ -140,6 +140,7 @@ if (portletTitleBasedNavigation) {
 		</liferay-ui:error>
 
 		<liferay-ui:error exception="<%= CaptchaConfigurationException.class %>" message="a-captcha-error-occurred-please-contact-an-administrator" />
+		<liferay-ui:error exception="<%= CaptchaException.class %>" message="captcha-verification-failed" />
 		<liferay-ui:error exception="<%= CaptchaTextException.class %>" message="text-verification-failed" />
 		<liferay-ui:error exception="<%= DuplicateFileEntryException.class %>" message="please-enter-a-unique-document-name" />
 
@@ -230,10 +231,11 @@ if (portletTitleBasedNavigation) {
 				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="attachments">
 					<liferay-util:include page="/message_boards/edit_message_attachment.jsp" servletContext="<%= application %>" />
 
-					<c:if test="<%= existingAttachmentsFileEntries.size() > 0 %>">
+					<div class="<%= (existingAttachmentsFileEntries.size() == 0) ? "hide" : StringPool.BLANK %>" id="<portlet:namespace />fileAttachments">
 						<liferay-ui:search-container
 							emptyResultsMessage="this-message-does-not-have-file-attachments"
 							headerNames="file-name,size,action"
+							id="messageAttachments"
 							total="<%= existingAttachmentsFileEntries.size() %>"
 						>
 							<liferay-ui:search-container-results
@@ -277,12 +279,14 @@ if (portletTitleBasedNavigation) {
 										direction="left-side"
 										icon="<%= StringPool.BLANK %>"
 										markupView="lexicon"
-										message="<%= StringPool.BLANK %>"
+										message="actions"
 									>
-										<liferay-ui:icon-delete
-											trash="<%= trashHelper.isTrashEnabled(scopeGroupId) %>"
-											url="<%= deleteURL %>"
-										/>
+										<div class="delete-attachment" data-rowid="<%= fileEntry.getFileEntryId() %>" data-url="<%= deleteURL.toString() %>">
+											<liferay-ui:icon-delete
+												trash="<%= trashHelper.isTrashEnabled(scopeGroupId) %>"
+												url="javascript:;"
+											/>
+										</div>
 									</liferay-ui:icon-menu>
 								</liferay-ui:search-container-column-text>
 							</liferay-ui:search-container-row>
@@ -292,11 +296,11 @@ if (portletTitleBasedNavigation) {
 								paginate="<%= false %>"
 							/>
 						</liferay-ui:search-container>
-					</c:if>
+					</div>
 				</aui:fieldset>
 			</c:if>
 
-			<c:if test="<%= isCategoryActive %>">
+			<c:if test="<%= curParentMessage == null %>">
 				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="categorization">
 					<liferay-asset:asset-tags-selector
 						className="<%= MBMessage.class.getName() %>"
@@ -338,18 +342,18 @@ if (portletTitleBasedNavigation) {
 					}
 					%>
 
-					<aui:input disabled="<%= disabled %>" helpMessage="message-boards-message-question-help" label="mark-as-a-question" name="question" type="hidden" value="<%= question %>" />
+					<aui:input disabled="<%= disabled %>" helpMessage="message-boards-message-question-help" label="mark-as-a-question" name="question" type="checkbox" value="<%= question %>" />
 				</c:if>
 
 				<c:if test="<%= (message == null) && themeDisplay.isSignedIn() && allowAnonymousPosting %>">
 					<aui:input helpMessage="message-boards-message-anonymous-help" name="anonymous" type="checkbox" />
 				</c:if>
 
-				<c:if test="<%= false && (message == null) && themeDisplay.isSignedIn() && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBThread.class.getName(), threadId) && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBCategory.class.getName(), categoryId) %>">
+				<c:if test="<%= (message == null) && themeDisplay.isSignedIn() && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBThread.class.getName(), threadId) && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBCategory.class.getName(), categoryId) %>">
 					<aui:input helpMessage="message-boards-message-subscribe-me-help" label="subscribe-me" name="subscribe" type='<%= (mbGroupServiceSettings.isEmailMessageAddedEnabled() || mbGroupServiceSettings.isEmailMessageUpdatedEnabled()) ? "checkbox" : "hidden" %>' value="<%= subscribeByDefault %>" />
 				</c:if>
 
-				<c:if test="<%= false && (priorities.length > 0) && MBCategoryPermission.contains(permissionChecker, scopeGroupId, categoryId, ActionKeys.UPDATE_THREAD_PRIORITY) %>">
+				<c:if test="<%= (priorities.length > 0) && MBCategoryPermission.contains(permissionChecker, scopeGroupId, categoryId, ActionKeys.UPDATE_THREAD_PRIORITY) %>">
 
 					<%
 					double threadPriority = BeanParamUtil.getDouble(message, request, "priority");
@@ -382,12 +386,12 @@ if (portletTitleBasedNavigation) {
 					</aui:select>
 				</c:if>
 
-				<c:if test="<%= false && PropsValues.MESSAGE_BOARDS_PINGBACK_ENABLED %>">
+				<c:if test="<%= PropsValues.MESSAGE_BOARDS_PINGBACK_ENABLED %>">
 					<aui:input helpMessage="to-allow-pingbacks,-please-also-ensure-the-entry's-guest-view-permission-is-enabled" label="allow-pingbacks" name="allowPingbacks" value="<%= allowPingbacks %>" />
 				</c:if>
 			</aui:fieldset>
 
-			<c:if test="<%= false && message == null %>">
+			<c:if test="<%= message == null %>">
 				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="permissions">
 					<liferay-ui:input-permissions
 						modelName="<%= MBMessage.class.getName() %>"
@@ -427,7 +431,7 @@ if (portletTitleBasedNavigation) {
 				saveButtonLabel = "save-as-draft";
 			}
 
-			String publishButtonLabel = "Post now";
+			String publishButtonLabel = "publish";
 
 			if (WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), scopeGroupId, MBMessage.class.getName())) {
 				publishButtonLabel = "submit-for-publication";
@@ -442,7 +446,7 @@ if (portletTitleBasedNavigation) {
 
 			<aui:button disabled="<%= pending %>" name="publishButton" type="submit" value="<%= publishButtonLabel %>" />
 
-			<c:if test="<%= false && themeDisplay.isSignedIn() %>">
+			<c:if test="<%= themeDisplay.isSignedIn() %>">
 				<aui:button name="saveButton" value="<%= saveButtonLabel %>" />
 			</c:if>
 
@@ -451,8 +455,8 @@ if (portletTitleBasedNavigation) {
 	</aui:form>
 </div>
 
-<aui:script require="message-boards-web/message_boards/js/MBPortlet.es">
-	new messageBoardsWebMessage_boardsJsMBPortletEs.default(
+<aui:script require='<%= npmResolvedPackageName + "/message_boards/js/MBPortlet.es as MBPortlet" %>'>
+	new MBPortlet.default(
 		{
 			constants: {
 				'ACTION_PUBLISH': '<%= WorkflowConstants.ACTION_PUBLISH %>',
@@ -460,8 +464,27 @@ if (portletTitleBasedNavigation) {
 				'CMD': '<%= Constants.CMD %>'
 			},
 			currentAction: '<%= (message == null) ? Constants.ADD : Constants.UPDATE %>',
+
+			<c:if test="<%= message != null %>">
+				<portlet:resourceURL id="/message_boards/get_attachments" var="getAttachmentsURL">
+					<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
+				</portlet:resourceURL>
+
+				getAttachmentsURL: '<%= getAttachmentsURL %>',
+			</c:if>
+
 			namespace: '<portlet:namespace />',
 			rootNode: '#<portlet:namespace />mbEditPageContainer'
+
+			<c:if test="<%= message != null %>">
+				<portlet:renderURL var="viewTrashAttachmentsURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+					<portlet:param name="mvcRenderCommandName" value="/message_boards/view_deleted_message_attachments" />
+					<portlet:param name="redirect" value="<%= currentURL %>" />
+					<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
+				</portlet:renderURL>
+
+				, viewTrashAttachmentsURL: '<%= viewTrashAttachmentsURL %>'
+			</c:if>
 		}
 	);
 </aui:script>
