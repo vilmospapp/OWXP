@@ -1,0 +1,1 @@
+This folder contains the folder structure which is neccessary for running Pohsi tests.

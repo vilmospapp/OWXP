@@ -1,0 +1,10 @@
+definition {
+       property testray.main.component.name = "Grow";
+
+        test ViewHelloWorld {
+                User.loginPG(
+                	userEmailAddress = "test@liferay.com",
+					password = "testt"
+				);
+        }
+}
